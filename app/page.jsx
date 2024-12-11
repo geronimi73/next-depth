@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef, createContext, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Analytics } from '@vercel/analytics/next';
 
 // transformer.js and img manipulations
@@ -13,12 +13,11 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { LoaderCircle, Crop, ImageUp, Github, LoaderPinwheel, Fan } from 'lucide-react'
 
-
 export default function Home() {
   // state
   const [device, setDevice] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [status, setStatus] = useState("Loading model")
+  const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState("")
   const [depthCutoff, setDepthCutoff] = useState(100)
   const [depthmap, setDepthmap] = useState(null)
 
@@ -44,8 +43,8 @@ export default function Home() {
     if (type === 'pong') {
       const device = data
 
-      setStatus("Processing example image")
       setDevice(device)
+      setStatus("Processing example image")
       worker.current.postMessage({ type: 'depth', data: canvasEl.current.toDataURL() });    
 
     } else if (type === 'depth_result') {
@@ -59,7 +58,7 @@ export default function Home() {
       setDepthCutoff(meanValue)
     } else if (type === 'error') {
       const error = data
-      
+
       setStatus("Error: " + error.toString())
     }
   }
@@ -67,10 +66,8 @@ export default function Home() {
   // Depth slider was moved
   useEffect(() => {
     if (depthmap) {
-      const origCanvas = canvasCopy.current
-
       // Clone original image and mask pixels where depth < cutoff
-      const canvas = cloneCanvas(origCanvas)
+      const canvas = cloneCanvas(canvasCopy.current)
       const ctx = canvas.getContext('2d');
       const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < depthmap.data.length; ++i) {
@@ -80,9 +77,8 @@ export default function Home() {
 
       // Draw masked canvas onto main display canvas
       const outputCanvas = canvasEl.current
-      outputCanvas.height = canvas.height
-      outputCanvas.width = canvas.width
       const outputCtx = outputCanvas.getContext("2d");
+      outputCtx.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
       outputCtx.drawImage(canvas, 0, 0)
 
     }
@@ -94,6 +90,9 @@ export default function Home() {
       worker.current = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
       worker.current.addEventListener('message', onWorkerMessage)
       worker.current.postMessage({ type: 'ping' });   
+
+      setStatus("Loading model")
+      setLoading(true)
     }
   }, [])
 
@@ -110,8 +109,10 @@ export default function Home() {
         canvasCopy.current = cloneCanvas(canvas)   // store orig. canvas 
 
         if (device) {
+          setStatus("Processing image")
+          setLoading(true)
           worker.current.postMessage({ type: 'depth', data: canvas.toDataURL() });    
-        }
+        } 
       }
     }
   }, [imageURL]);

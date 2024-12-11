@@ -171,7 +171,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex justify-center">
-              <canvas ref={canvasEl} width={512} height={512} style={{maxHeight: "500px"}}/>
+              <canvas ref={canvasEl} width={512} height={512} style={{maxHeight: "500px", maxWidth: "500px"}}/>
             </div>
           </div>
         </CardContent>

@@ -57,6 +57,10 @@ export default function Home() {
       setLoading(false)
       setDepthmap(depthImage)
       setDepthCutoff(meanValue)
+    } else if (type === 'error') {
+      const error = data
+      
+      setStatus("Error: " + error.toString())
     }
   }
 

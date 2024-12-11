@@ -11,7 +11,7 @@ import { cn, cloneCanvas} from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { LoaderCircle, Crop, ImageUp, Github, LoaderPinwheel, Fan } from 'lucide-react'
+import { LoaderCircle, Crop, ImageUp, Download, Github, LoaderPinwheel, Fan } from 'lucide-react'
 
 export default function Home() {
   // state
@@ -28,15 +28,6 @@ export default function Home() {
   const canvasCopy = useRef(null)
   const fileInputEl = useRef(null)
 
-  // Upload new image
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0]
-    const dataURL = window.URL.createObjectURL(file)
-
-    setLoading(true)
-    setImageURL(dataURL)
-  }
-
   function onWorkerMessage(e) {
     const { type, data } = e.data;
 
@@ -44,7 +35,7 @@ export default function Home() {
       const device = data
 
       setDevice(device)
-      setStatus("Processing example image")
+      setStatus("Processing image")
       worker.current.postMessage({ type: 'depth', data: canvasEl.current.toDataURL() });    
 
     } else if (type === 'depth_result') {
@@ -62,6 +53,27 @@ export default function Home() {
       setStatus("Error: " + error.toString())
     }
   }
+
+  // Upload new image
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0]
+    const dataURL = window.URL.createObjectURL(file)
+
+    setLoading(true)
+    setImageURL(dataURL)
+  }
+
+  // Download 
+  const download = (e) => {
+    const link = document.createElement("a");
+    link.href = canvasEl.current.toDataURL();
+    link.download = "image.png";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
 
   // Depth slider was moved
   useEffect(() => {
@@ -149,7 +161,14 @@ export default function Home() {
               <div className="flex items-center w-40">
                 <Slider min={-1} max={255} step={1} value={[depthCutoff]} className={cn("", loading ? "invisible" : "visible")} onValueChange={(cutoff)=>{setDepthCutoff(cutoff[0])}} />
               </div>
-              <Button onClick={()=>{fileInputEl.current.click()}} variant="secondary" disabled={loading}><ImageUp/> Change image</Button>
+              <div className="flex gap-2">
+                <Button onClick={()=>{fileInputEl.current.click()}} variant="secondary" disabled={loading}>
+                  <ImageUp /> New image
+                </Button>
+                <Button onClick={download} variant="secondary" disabled={loading}>
+                  <Download /> 
+                </Button>
+              </div>
             </div>
             <div className="flex justify-center">
               <canvas ref={canvasEl} width={512} height={512} style={{maxHeight: "500px"}}/>

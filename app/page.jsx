@@ -144,7 +144,7 @@ export default function Home() {
         </div>
         <CardHeader>
           <CardTitle>
-            <p>Background Removal Demo with <a className="underline" href="https://github.com/DepthAnything/Depth-Anything-V2" target="_blank">Depth Anthing V2</a> and <a className="underline" target="_blank" href="https://huggingface.co/docs/transformers.js/">transformers.js</a></p>
+            <p>Background Removal Demo with <a className="underline" href="https://github.com/DepthAnything/Depth-Anything-V2" target="_blank">Depth Anything V2</a> and <a className="underline" target="_blank" href="https://huggingface.co/docs/transformers.js/">transformers.js</a></p>
             <p className={cn("font-normal flex m-1 gap-1 items-center", device ? "visible" : "invisible")}>
               <Fan color="#000" className="w-6 h-6 animate-[spin_2.5s_linear_infinite] direction-reverse"/>
               Running on {device}
